@@ -1,5 +1,6 @@
 package com.example.demo.web.rest;
 
+import com.example.demo.validators.UserValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,17 +15,18 @@ import com.example.demo.entity.User;
 import com.example.demo.service.SecurityService;
 import com.example.demo.service.UserService;
 
-import java.util.Date;
 
 @Controller
-public class RegistrationController
+public class UserController
 {
-    private static final Logger LOG = LoggerFactory.getLogger(RegistrationController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     private UserService userService;
     @Autowired
     private SecurityService securityService;
+    @Autowired
+    private UserValidator userValidator;
 
     @GetMapping("/registration")
     public String registration(Model model)
@@ -40,30 +42,13 @@ public class RegistrationController
             return "registration";
         }
 
-        if (!userForm.getPassword().equals(userForm.getPasswordConfirm()))
-        {
-            bindingResult.rejectValue("password", "PasswordsAreNotEqual", "Passwords aren't equal");
+        userValidator.setContext("registration");
+        userValidator.validate(userForm, bindingResult);
+        userValidator.setContext("");
+        if (userValidator.getHasErrors()) {
             return "registration";
         }
-
-        if (userForm.getBirthdate() != null) {
-            var currentDate = new Date();
-            var userFormDate = userForm.getBirthdate();
-            if (userForm.getBirthdate().after(currentDate) || userForm.getBirthdate().equals(currentDate))
-            {
-                bindingResult.rejectValue("birthdate", "IncorrectBirthdate", "Birthdate must be earlier then current date");
-                return "registration";
-            }
-        }
-
-        if (!userService.save(userForm))
-        {
-            bindingResult.rejectValue("passwordConfirm", "UserHasAlreadyBeenCreated", "User has already been created");
-            return "registration";
-        }
-
         securityService.autoLogin(userForm.getUsername(), userForm.getPasswordConfirm());
-
         return "redirect:/menu";
     }
 
@@ -85,9 +70,33 @@ public class RegistrationController
         return "menu";
     }
 
-//    @GetMapping({"/menu"})
-//    public String menu(Model model)
-//    {
-//        return "menu";
-//    }
+
+    @GetMapping("/editProfile")
+    public String editProfile(Model model)
+    {
+        var loggedInUserName = securityService.findLoggedInUsername();
+        var user = userService.findByUsername(loggedInUserName);
+
+        model.addAttribute("editProfileForm", user);
+        return "editProfile";
+    }
+
+    @PostMapping("/editProfile")
+    public String editUserProfile(@ModelAttribute("editProfileForm") User editProfileForm, BindingResult bindingResult)
+    {
+        if (bindingResult.hasErrors()) {
+            return "editProfile";
+        }
+
+        userValidator.validate(editProfileForm, bindingResult);
+
+        if (userValidator.getHasErrors()) {
+            return "editProfile";
+        }
+
+        userService.editProfile(editProfileForm);
+        securityService.autoLoginWithoutPassword(editProfileForm.getUsername());
+
+        return "menu";
+    }
 }

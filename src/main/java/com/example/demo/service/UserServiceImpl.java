@@ -33,6 +33,11 @@ public class UserServiceImpl implements UserService
     @Override
     public boolean editProfile(User user)
     {
+        var newUsername = user.getUsername();
+        if (userRepository.findByUsername(newUsername) != null)
+        {
+            return false;
+        }
         var currentUsername = securityService.findLoggedInUsername();
         var userFromDb = userRepository.findByUsername(currentUsername);
         userFromDb.setDescription(user.getDescription());
@@ -41,19 +46,6 @@ public class UserServiceImpl implements UserService
         userRepository.save(userFromDb);
         return true;
     }
-
-//    @Override
-//    public boolean editProfile(User user)
-//    {
-//        var userFromDb = userRepository.findByUsername(user.getUsername());
-//        if (userFromDb != null)
-//        {
-//            return false;
-//        }
-////        user.setBirthdate(user.getBirthdate());
-////        user.setDescription(user.getDescription());
-////        user.setUsername(user.getUsername());
-//    }
 
 
     @Override

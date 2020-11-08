@@ -1,14 +1,11 @@
 package com.example.demo.entity;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Set;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.GrantedAuthority;
@@ -32,8 +29,13 @@ public class User implements UserDetails
 
     private String description;
 
-//    @Column(name = "events_ids", columnDefinition = "uuid[]")
-//    private ArrayList<String> eventsUuids;
+    //нужно будет учесть update  в бд
+    @OneToMany(mappedBy = "user")
+    @JoinTable(name = "events", joinColumns = {@JoinColumn(name = "id")})
+    private Set<Event> eventsIds;
+
+
+    private Set<Event> subscribeTo;
 
     @Transient //не имеет отображения в БД
     private String passwordConfirm;
@@ -107,13 +109,13 @@ public class User implements UserDetails
         this.description = description;
     }
 
-//    public ArrayList<String> getEventsUuids() {
-//        return eventsUuids;
-//    }
+    public Set<Event> getEventsUuids() {
+        return eventsIds;
+    }
 
-//    public void setEventsUuids(ArrayList<String> eventsUuids) {
-//        this.eventsUuids = eventsUuids;
-//    }
+    public void setEventsUuids(Set<Event> eventsIds) {
+        this.eventsIds = eventsIds;
+    }
 
     public String getPasswordConfirm() {
         return passwordConfirm;
