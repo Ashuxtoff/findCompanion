@@ -1,11 +1,16 @@
 package com.example.demo.entity;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,7 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Table(name = "users")
 public class User implements UserDetails
 {
-//    @Column(name = "id", columnDefinition = "uuid")
+    //    @Column(name = "id", columnDefinition = "uuid")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,10 +36,9 @@ public class User implements UserDetails
 
     //нужно будет учесть update  в бд
     @OneToMany(mappedBy = "user")
-    @JoinTable(name = "events", joinColumns = {@JoinColumn(name = "id")})
     private Set<Event> eventsIds;
 
-
+    @OneToMany
     private Set<Event> subscribeTo;
 
     @Transient //не имеет отображения в БД
@@ -109,20 +113,37 @@ public class User implements UserDetails
         this.description = description;
     }
 
-    public Set<Event> getEventsUuids() {
-        return eventsIds;
-    }
-
-    public void setEventsUuids(Set<Event> eventsIds) {
-        this.eventsIds = eventsIds;
-    }
-
     public String getPasswordConfirm() {
         return passwordConfirm;
     }
 
     public void setPasswordConfirm(String passwordConfirm) {
         this.passwordConfirm = passwordConfirm;
+    }
+
+    public void setId(Long id)
+    {
+        this.id = id;
+    }
+
+    public Set<Event> getEvents()
+    {
+        return eventsIds;
+    }
+
+    public void setEvents(Set<Event> eventsIds)
+    {
+        this.eventsIds = eventsIds;
+    }
+
+    public Set<Event> getSubscribeTo()
+    {
+        return subscribeTo;
+    }
+
+    public void setSubscribeTo(Set<Event> subscribeTo)
+    {
+        this.subscribeTo = subscribeTo;
     }
 
 }

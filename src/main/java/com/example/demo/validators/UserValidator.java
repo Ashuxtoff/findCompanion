@@ -16,8 +16,6 @@ public class UserValidator implements Validator {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private SecurityService securityService;
 
     @Override
     public boolean supports(Class<?> aClass)
@@ -46,7 +44,7 @@ public class UserValidator implements Validator {
     {
         User user = (User) o;
 
-        var loggedInUserName = securityService.findLoggedInUsername();
+//        var loggedInUserName = securityService.findLoggedInUsername();
 
         setHasErrors(false);
 
@@ -68,7 +66,6 @@ public class UserValidator implements Validator {
 
         if (user.getBirthdate() != null) {
             var currentDate = new Date();
-            var userFormDate = user.getBirthdate();
             if (user.getBirthdate().after(currentDate) || user.getBirthdate().equals(currentDate))
             {
                 errors.rejectValue("birthdate", "IncorrectBirthdate", "Birthdate must be earlier then current date");
@@ -81,7 +78,8 @@ public class UserValidator implements Validator {
             errors.rejectValue("passwordConfirm", "UserHasAlreadyBeenCreated", "User has already been created");
             setHasErrors(true);
         }
-
+    }
+}
 
 //        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "username", "NotEmpty");
 
@@ -104,5 +102,3 @@ public class UserValidator implements Validator {
 //        {
 //            errors.rejectValue("passwordConfirm", "Diff.userForm.passwordConfirm");
 //        }
-    }
-}
