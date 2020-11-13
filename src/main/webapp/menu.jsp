@@ -16,6 +16,7 @@
 
   <body>
             <h4 class="text-center"><a href="${contextPath}/editProfile">Edit profile</a></h4>
+            <h4 class="text-center"><a href="${contextPath}/myEvents">My Events</a></h4>
             <h4 class="text-center"><a href="${contextPath}/lookForEvent">Look for event</a></h4>
             <h4 class="text-center"><a href="${contextPath}/addEvent">Add Event</a></h4>
             <h4 class="text-center"><a href="${contextPath}/logout">Logout</a></h4>

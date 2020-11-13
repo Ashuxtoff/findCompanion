@@ -23,8 +23,7 @@ import com.example.demo.service.UserService;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.swing.text.html.parser.Entity;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 public class EventController {
@@ -83,20 +82,17 @@ public class EventController {
         userEvents.add(event);
         user.setEvents(userEvents);
 
+        Set<Event> userSubscriptions = user.getSubscribeTo();
+        userSubscriptions.add(event);
+        user.setSubscribeTo(userSubscriptions);
+
         userRepository.save(user);
         eventRepository.save(event);
+
 
         return "redirect:/event" + event.getId().toString();
     }
 
-//    @GetMapping("/event")
-//    public String getJustAddedEvent(Model model) {
-//      //  var longId = Long.parseLong(Id);
-//      //  Event event = eventRepository.findById(longId).get();
-//        model.addAttribute("eventForm", justAddedEvent);
-//        justAddedEvent = null;
-//        return "event";
-//    }
 
     @GetMapping("/event{Id}")
     public String getCurrentEvent(@PathVariable String Id, Model model) {
@@ -106,6 +102,26 @@ public class EventController {
         return "event";
     }
 
+    @GetMapping("/myEvents")
+    public String getMyEventsList(Model model) {
+        String username = securityService.findLoggedInUsername();
+        User user = userRepository.findByUsername(username);
+//        ArrayList<String> myEventsIds = new ArrayList<String>();
+        Set<Event> myEvents = user.getEvents();
+        Event [] myEventsArray = new Event[myEvents.size()];
+        var index = 0;
+        for (Event event : myEvents) {
+            myEventsArray[index] = event;
+            index++;
+        }
+        Arrays.sort(myEventsArray);
+//        for (Event event : myEvents) {
+//            myEventsIds.add(event.getId().toString());
+//        }
+        ArrayList<Event> myEventsList = new ArrayList<Event>(Arrays.asList(myEventsArray));
+        model.addAttribute("myEventsList", myEventsList);
+        return "myEvents";
+    }
 
 
 

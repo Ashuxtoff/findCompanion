@@ -5,20 +5,15 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Date;
 import java.util.Set;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name="events")
-public class Event {
+public class Event implements Comparable<Event> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "event_id")
     private Long id;
 
     private String title;
@@ -35,7 +30,8 @@ public class Event {
 
     private String username;
 
-    @OneToMany(mappedBy = "subscribeTo")
+    @ManyToMany(mappedBy = "subscribeTo")
+//    @OneToMany(mappedBy = "subscribeTo")
     private Set<User> subscribers;
 
     public Long getId() {
@@ -115,5 +111,18 @@ public class Event {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    @Override
+    public int compareTo(Event other) {
+        var currentDatetime = this.datetime;
+        var otherDatetime = other.getDatetime();
+        if (currentDatetime.before(otherDatetime)) {
+            return -1;
+        }
+        else if (currentDatetime.after(otherDatetime)) {
+            return 1;
+        }
+        return 0;
     }
 }
