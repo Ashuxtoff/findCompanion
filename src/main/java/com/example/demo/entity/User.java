@@ -4,17 +4,12 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
 @Entity
 @Table(name = "users")
@@ -23,6 +18,7 @@ public class User implements UserDetails
     //    @Column(name = "id", columnDefinition = "uuid")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @Column(name = "user_id")
     private Long id;
 
     private String username;
@@ -35,10 +31,11 @@ public class User implements UserDetails
     private String description;
 
     //нужно будет учесть update  в бд
-    @OneToMany(mappedBy = "user")
-    private Set<Event> eventsIds;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<Event> events;
 
-    @OneToMany
+
+    @ManyToMany(mappedBy = "subscribers")
     private Set<Event> subscribeTo;
 
     @Transient //не имеет отображения в БД
@@ -128,12 +125,12 @@ public class User implements UserDetails
 
     public Set<Event> getEvents()
     {
-        return eventsIds;
+        return events;
     }
 
     public void setEvents(Set<Event> eventsIds)
     {
-        this.eventsIds = eventsIds;
+        this.events = eventsIds;
     }
 
     public Set<Event> getSubscribeTo()
@@ -144,6 +141,16 @@ public class User implements UserDetails
     public void setSubscribeTo(Set<Event> subscribeTo)
     {
         this.subscribeTo = subscribeTo;
+    }
+
+    public void addEvent(Event event) {
+        this.subscribeTo.add(event);
+        event.getSubscribers().add(this);
+    }
+
+    public void removeEvent(Event event) {
+        this.subscribeTo.remove(event);
+        event.getSubscribers().remove(this);
     }
 
 }

@@ -1,5 +1,7 @@
 package com.example.demo.web.rest;
 
+import com.example.demo.entity.Event;
+import com.example.demo.repository.UserRepository;
 import com.example.demo.validators.UserValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.example.demo.entity.User;
@@ -27,6 +30,8 @@ public class UserController
     private SecurityService securityService;
     @Autowired
     private UserValidator userValidator;
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/registration")
     public String registration(Model model)
@@ -49,6 +54,9 @@ public class UserController
             return "registration";
         }
         securityService.autoLogin(userForm.getUsername(), userForm.getPasswordConfirm());
+
+        String username = securityService.findLoggedInUsername();
+        User user = userRepository.findByUsername(username);
         return "redirect:/menu";
     }
 
@@ -98,5 +106,13 @@ public class UserController
         securityService.autoLoginWithoutPassword(editProfileForm.getUsername());
 
         return "menu";
+    }
+
+    @GetMapping("/myProfile")
+    public String getCurrentEvent(Model model) {
+        String username = securityService.findLoggedInUsername();
+        User user = userService.findByUsername(username);
+        model.addAttribute("userForm", user);
+        return "myProfile";
     }
 }

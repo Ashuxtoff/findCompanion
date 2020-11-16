@@ -56,6 +56,8 @@
 
     </div>
 
+    <h4><a href="${contextPath}/menu">Back to menu</a></h4>
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="${contextPath}/resources/js/bootstrap.min.js"></script>
   </body>
