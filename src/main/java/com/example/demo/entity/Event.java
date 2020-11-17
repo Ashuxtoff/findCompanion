@@ -36,8 +36,8 @@ public class Event implements Comparable<Event> {
     })
     @JoinTable(
             name = "user_subscription",
-            joinColumns = {@JoinColumn(name = "user_id")},
-            inverseJoinColumns = {@JoinColumn(name = "event_id")}
+            joinColumns = {@JoinColumn(name = "event_id")}, // столбик талицы-владельца. Т.к. мы сейчас в event, поэтому event - владелец.
+            inverseJoinColumns = {@JoinColumn(name = "user_id")}
     )
     private Set<User> subscribers;
 
