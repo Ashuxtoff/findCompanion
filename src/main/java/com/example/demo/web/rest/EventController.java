@@ -224,6 +224,16 @@ public class EventController {
         return "menu";
     }
 
+    @GetMapping("/editEvent{Id}")
+    public String getEditEventForm(@PathVariable String Id, Model model)
+    {
+        var longId = Long.parseLong(Id);
+        Event event = eventRepository.findById(longId).get();
+
+        model.addAttribute("editEventForm", event);
+        return "editProfile";
+    }
+
 
 
 
