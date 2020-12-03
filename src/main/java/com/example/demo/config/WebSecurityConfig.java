@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+
 @Configuration // конфигурация - источник определения бинов
 @EnableWebSecurity // в сочетании с @Configuration показывает, что класс отвечает за настройки безопасности
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter
@@ -24,10 +25,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-            .authorizeRequests()
+        http.csrf().disable() // выключить защиту от csrf атак, иначе не получалось запрос к странице с фронта сделать
+            .authorizeRequests() //Это строкой мы говорим предоставить разрешения для следующих url.
                 .antMatchers("/resources/**", "/registration").permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().authenticated() // все http запросы к нашему приложению должны быть аутентифицированы
                 .and()
             .formLogin()
                 .loginPage("/login")
@@ -39,11 +40,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter
                 .permitAll();
     }
 
-    @Autowired
-    protected void configureGlobal(AuthenticationManagerBuilder auth) throws Exception
-    {
-        auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder());
-    }
 
     @Bean
     public AuthenticationManager customAuthenticationManager() throws Exception // используем в SecurityServiceImpl для аутентификации

@@ -17,15 +17,14 @@
 
     <div class="container">
 
-        <%--  userForm - имя атрибута модели --%>
 
-        <form:form method="POST" modelAttribute="editProfileForm" class="form-signin">
-            <h2 class="form-signin-heading">Edit profile</h2>
-            <spring:bind path="username">
+        <form:form method="POST" modelAttribute="editEventForm" class="form-signin">
+            <h2 class="form-signin-heading">Edit event</h2>
+            <spring:bind path="title">
                 <div class="form-group ${status.error ? 'has-error' : ''}">
-                    <form:input type="text" path="username" class="form-control" placeholder="Username"
+                    <form:input type="text" path="title" class="form-control" placeholder="Title"
                                 autofocus="true"></form:input>
-                    <form:errors path="username"></form:errors>
+                    <form:errors path="title"></form:errors>
                 </div>
             </spring:bind>
 
@@ -36,13 +35,21 @@
                 </div>
             </spring:bind>
 
-            <spring:bind path="birthdate">
+            <spring:bind path="datetime">
                 <div class="form-group ${status.error ? 'has-error' : ''}">
                     Birthdate:
-                    <form:input type="date" label="birthdate" path="birthdate" placeholder=""></form:input>
-                    <form:errors path="birthdate"></form:errors>
+                    <form:input type="date" label="datetime" path="datetime" placeholder=""></form:input>
+                    <form:errors path="datetime"></form:errors>
                 </div>
             </spring:bind>
+
+            <spring:bind path="address">
+                <div class="form-group ${status.error ? 'has-error' : ''}">
+                    <form:input type="text" path="address" class="form-control" placeholder="Address"></form:input>
+                    <form:errors path="address"></form:errors>
+                </div>
+            </spring:bind>
+
 
             <button class="btn btn-lg btn-primary btn-block" type="submit">Submit</button>
         </form:form>

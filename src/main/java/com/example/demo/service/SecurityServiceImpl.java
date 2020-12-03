@@ -20,7 +20,6 @@ public class SecurityServiceImpl implements SecurityService
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    @Qualifier("userDetailsServiceImpl")
     @Autowired
     private UserDetailsService userDetailsService;
 
@@ -29,20 +28,6 @@ public class SecurityServiceImpl implements SecurityService
     {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication.getName();
-
-//        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        if (principal instanceof Principal)
-//        {
-//            return ((Principal) principal).getName();
-//        }
-//        return null;
-
-//        Object userDetails = SecurityContextHolder.getContext().getAuthentication().getDetails();
-//        if (userDetails instanceof UserDetails)
-//        {
-//            return ((UserDetails)userDetails).getUsername();
-//        }
-//        return null;
     }
 
     @Override
@@ -57,7 +42,7 @@ public class SecurityServiceImpl implements SecurityService
         if (usernamePasswordAuthenticationToken.isAuthenticated())
         {
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-            LOG.debug(String.format("Auto login %s successfully!", username));
+        //    LOG.debug(String.format("Auto login %s successfully!", username));
         }
     }
 

@@ -3,6 +3,10 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <c:set var="contextPath" value="${pageContext.request.contextPath}"/>
 
+<%@ page import="java.io.*,java.lang.*,java.util.*,java.net.*,java.util.*,java.text.*"%>
+<%@ page import="javax.activation.*,javax.mail.*,org.apache.commons.*"%>
+<%@ page import="javax.servlet.http.*,javax.servlet.*"%>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -23,11 +27,23 @@
       Username:<c:out value="${eventForm.username}"/><br>
 
 
-      <h4 class="text-center"><a href="${contextPath}/event${eventForm.id}/subscribe">Subscribe to event</a></h4>
+      <button type="button" onclick="javascript:Subscribe()">Subscribe to event</button>
 
+      <h4><a href="event${Id}/chat">To chat</a></h4>
       <h4><a href="${contextPath}/menu">To menu</a></h4>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="${contextPath}/resources/js/bootstrap.min.js"></script>
   </body>
+
+  <script type="text/javascript">
+        Subscribe = function() {
+          var http = new XMLHttpRequest();
+          var url = document.URL
+          var params = "subscribe"
+          http.open('POST', url, false)
+          http.send(params)
+        }
+  </script>
+
 </html>

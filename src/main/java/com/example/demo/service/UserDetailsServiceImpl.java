@@ -17,15 +17,15 @@ import com.example.demo.repository.UserRepository;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService // обязательная спринговая вещь для аутентификации и определения метода нахождения пользователя. User Details - носитель инфы об аутентификации пользователя
 {
-    private static final String ROLE_NAME = "SIMPLE_ROLE";
-    protected static final Set<GrantedAuthority> GRANTED_AUTHORITIES = Set.of(new SimpleGrantedAuthority(ROLE_NAME));
+    private static final String ROLE_NAME = "SIMPLE_ROLE";  // нет ограничения по ролям
+    protected static final Set<GrantedAuthority> GRANTED_AUTHORITIES = Set.of(new SimpleGrantedAuthority(ROLE_NAME));  // нужно для создания польщзователя в loadByUsername
 
     @Autowired
     private UserRepository userRepository;
 
     @Override
     @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException // возвращает пользователя по юзернейму
     {
         User user = userRepository.findByUsername(username);
         if (user == null)

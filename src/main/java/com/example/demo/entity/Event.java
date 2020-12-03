@@ -13,7 +13,6 @@ public class Event implements Comparable<Event> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @Column(name = "event_id")
     private Long id;
 
     private String title;
@@ -31,8 +30,11 @@ public class Event implements Comparable<Event> {
     private String username;
 
     @ManyToMany(cascade = {
-            CascadeType.PERSIST,
-            CascadeType.MERGE
+            CascadeType.PERSIST, // подразумевает, что когда мы созраняем событие, в подписках у юзера это поле тоже сохраняется.
+            CascadeType.MERGE // синхронизация изменений в объекте и для юзера
+            // refresh - при обновлении обновлюяются объекты из поля в состояние, соответствующем БД
+            // remove - при удалении удаляются объекты из поля
+            // all - по всем операциям
     })
     @JoinTable(
             name = "user_subscription",
@@ -40,6 +42,9 @@ public class Event implements Comparable<Event> {
             inverseJoinColumns = {@JoinColumn(name = "user_id")}
     )
     private Set<User> subscribers;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
+    private Set<Message> messages;
 
     public Long getId() {
         return id;
@@ -65,6 +70,13 @@ public class Event implements Comparable<Event> {
         this.description = description;
     }
 
+    public Set<Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(Set<Message> messages) {
+        this.messages = messages;
+    }
 
     public Date getDatetime() {
         return datetime;

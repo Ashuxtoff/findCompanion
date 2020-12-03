@@ -9,16 +9,14 @@ import javax.persistence.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
+
 
 @Entity
 @Table(name = "users")
 public class User implements UserDetails
 {
-    //    @Column(name = "id", columnDefinition = "uuid")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @Column(name = "user_id")
     private Long id;
 
     private String username;
@@ -31,9 +29,11 @@ public class User implements UserDetails
     private String description;
 
     //нужно будет учесть update  в бд
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // если удаляется элемент - удаляются остальныек
     private Set<Event> events;
 
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    private Set<Message> messages;
 
     @ManyToMany(mappedBy = "subscribers")
     private Set<Event> subscribeTo;
@@ -141,16 +141,6 @@ public class User implements UserDetails
     public void setSubscribeTo(Set<Event> subscribeTo)
     {
         this.subscribeTo = subscribeTo;
-    }
-
-    public void addEvent(Event event) {
-        this.subscribeTo.add(event);
-        event.getSubscribers().add(this);
-    }
-
-    public void removeEvent(Event event) {
-        this.subscribeTo.remove(event);
-        event.getSubscribers().remove(this);
     }
 
 }

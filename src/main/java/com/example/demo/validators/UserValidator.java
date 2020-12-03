@@ -1,6 +1,5 @@
 package com.example.demo.validators;
 
-import com.example.demo.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -23,9 +22,9 @@ public class UserValidator implements Validator {
         return User.class.equals(aClass);
     }
 
-    private boolean hasErrors;
-
     private String context;
+
+    private boolean hasErrors;
 
     public boolean getHasErrors() {
         return  hasErrors;
@@ -44,11 +43,9 @@ public class UserValidator implements Validator {
     {
         User user = (User) o;
 
-//        var loggedInUserName = securityService.findLoggedInUsername();
-
         setHasErrors(false);
 
-        if (userService.findByUsername(user.getUsername()) != null) {
+        if (userService.findByUsername(user.getUsername()) != null && this.context.equals("registration")) {
             errors.rejectValue("username", "ThisUsernameIsAlreadyUsed", "This username is already used");
             setHasErrors(true);
         }
@@ -80,25 +77,3 @@ public class UserValidator implements Validator {
         }
     }
 }
-
-//        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "username", "NotEmpty");
-
-//        if (user.getUsername().length() < 6 || user.getUsername().length() > 32)
-//        {
-//            errors.rejectValue("username", "Size.userForm.username");
-//        }
-//        if (userService.findByUsername(user.getUsername()) != null)
-//        {
-//            errors.rejectValue("username", "Duplicate.userForm.username");
-//        }
-//
-//        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "password", "NotEmpty");
-//        if (user.getPassword().length() < 8 || user.getPassword().length() > 32)
-//        {
-//            errors.rejectValue("password", "Size.userForm.password");
-//        }
-//
-//        if (!user.getPasswordConfirm().equals(user.getPassword()))
-//        {
-//            errors.rejectValue("passwordConfirm", "Diff.userForm.passwordConfirm");
-//        }

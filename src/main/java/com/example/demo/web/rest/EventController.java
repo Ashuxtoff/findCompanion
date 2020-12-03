@@ -1,11 +1,12 @@
 package com.example.demo.web.rest;
 
 import com.example.demo.entity.Event;
+import com.example.demo.entity.Message;
 import com.example.demo.repository.EventRepository;
+import com.example.demo.repository.MessageRepository;
 import com.example.demo.repository.UserRepository;
-import com.example.demo.service.EventService;
 import com.example.demo.validators.EventValidator;
-import com.example.demo.validators.UserValidator;
+import com.example.demo.validators.MessageValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import com.example.demo.entity.User;
 import com.example.demo.service.SecurityService;
-import com.example.demo.service.UserService;
-import org.springframework.web.servlet.HttpServletBean;
-import org.springframework.web.servlet.ModelAndView;
-
 import javax.servlet.http.HttpServletRequest;
-import javax.swing.text.html.parser.Entity;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,9 +33,6 @@ public class EventController {
     private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
-    private EventService eventService;
-
-    @Autowired
     private SecurityService securityService;
 
     @Autowired
@@ -50,6 +43,12 @@ public class EventController {
 
     @Autowired
     private EventValidator eventValidator;
+
+    @Autowired
+    private MessageValidator messageValidator;
+
+    @Autowired
+    private MessageRepository messageRepository;
 
     @GetMapping("/addEvent")
     public String getAddEventForm(Model model)
@@ -101,28 +100,16 @@ public class EventController {
         var longId = Long.parseLong(Id);
         Event event = eventRepository.findById(longId).get();
         model.addAttribute("eventForm", event);
+        model.addAttribute("Id", Id);
 
-//        if (user.getEvents().contains(event)) {
-//            return "myEvent";
-//        }
-//
-//        if (user.getSubscribeTo().contains(event)) {
-//            return "notMyEventSubscribed";
-//        }
-//        else {
-//            return "notMyEventUnsubscribed";
-//        }
         if (user.getEvents().contains(event)) {
-            //model.addAttribute("wasDeleted", false);
             return "myEvent";
         }
 
         if (user.getSubscribeTo().contains(event)) {
-            //model.addAttribute("wasSubscribed", true);
             return "notMyEventSubscribed";
         }
 
-        //model.addAttribute("wasSubscribed", false);
         return "notMyEventUnsubscribed";
     }
 
@@ -186,61 +173,37 @@ public class EventController {
         return "redirect:/eventSubscribers";
     }
 
-    @GetMapping("/event{Id}/subscribe")
-    public String subscribe(@PathVariable String Id, Model model) {
-        String username = securityService.findLoggedInUsername();
-        User user = userRepository.findByUsername(username);
-
-        var longId = Long.parseLong(Id);
-        Event event = eventRepository.findById(longId).get();
-        user.getSubscribeTo().add(event); // проработать после того, как решится вопрос со связностью таблиц, нужно ли еще добавлять юзера в список для ивента
-        userRepository.save(user); // Здесь падает ошибка, ошибка в промежуточной таблице "повторяющееся значение ключа нарушает ограничение уникальности "uk_vupek7odydvgxk6s0o5nvii8"".
-        eventRepository.save(event);
-
-        model.addAttribute("eventForm", event);
-        return "redirect:/notMyEventSubscribed";
-    }
-
-    @GetMapping("/event{Id}/unsubscribe")
-    public String unsubscribe(@PathVariable String Id, Model model) {
-        String username = securityService.findLoggedInUsername();
-        User user = userRepository.findByUsername(username);
-
-        var longId = Long.parseLong(Id);
-        Event event = eventRepository.findById(longId).get();
-        user.getSubscribeTo().remove(event); // проработать после того, как решится вопрос со связностью таблиц, нужно ли еще добавлять юзера в список для ивента
-        userRepository.save(user);
-        eventRepository.save(event);
-
-        model.addAttribute("eventForm", event);
-        return "redirect:/notMyEventUnsubscribed";
-    }
-
-//    @GetMapping("/event{Id}/delete")
-//    public String delete(@PathVariable String Id, Model model) {
-//        String username = securityService.findLoggedInUsername();
-//        User user = userRepository.findByUsername(username);
-//
-//        var longId = Long.parseLong(Id);
-//        Event event = eventRepository.findById(longId).get();
-//        user.getSubscribeTo().remove(event); // проработать после того, как решится вопрос со связностью таблиц, нужно ли еще добавлять юзера в список для ивента
-//        userRepository.save(user);
-//        eventRepository.delete(event);
-//
-//        return "menu";
-//    }
 
     @PostMapping("/event{Id}")
     public String postProcessing(@PathVariable String Id, HttpServletRequest request) throws IOException {
-        String payload = getRequestBody(request);
-        String actionType = payload.substring(11, payload.length());
+        String actionType = getRequestBody(request);
         if (actionType.equals("delete")) {
             var longId = Long.parseLong(Id);
             Event event = eventRepository.findById(longId).get();
             eventRepository.delete(event);
-            return "menu";
+            return "redirect:/menu";
         }
-        return "redirect:/event" + Id;
+
+        var username = securityService.findLoggedInUsername();
+        User user = userRepository.findByUsername(username);
+
+        var longId = Long.parseLong(Id);
+        Event event = eventRepository.findById(longId).get();
+
+        if (actionType.equals("subscribe")) {
+            user.getSubscribeTo().add(event);
+            event.getSubscribers().add(user);
+            userRepository.save(user);
+            eventRepository.save(event);
+            return "notMyEventSubscribed";
+        }
+        else {
+            user.getSubscribeTo().remove(event);
+            event.getSubscribers().remove(user);
+            userRepository.save(user);
+            eventRepository.save(event);
+            return "notMyEventUnsubscribed";
+        }
     }
 
     @GetMapping("/editEvent{Id}")
@@ -250,63 +213,99 @@ public class EventController {
         Event event = eventRepository.findById(longId).get();
 
         model.addAttribute("editEventForm", event);
-        return "editProfile";
+        return "editEvent";
     }
 
 
+    @PostMapping("/editEvent{Id}")
+    public String editEvent(@PathVariable String Id, @ModelAttribute("eventForm") Event eventForm, BindingResult bindingResult)
+    {
+        if (bindingResult.hasErrors()) {
+            return "editEvent" + Id;
+        }
+
+        eventValidator.validate(eventForm, bindingResult);
+
+        if (eventValidator.getHasErrors()) {
+            return "editEvent" + Id;
+        }
+
+        var longId = Long.parseLong(Id);
+        Event event = eventRepository.findById(longId).get();
+
+        event.setAddress(eventForm.getAddress());
+        event.setDescription(eventForm.getDescription());
+        event.setDatetime(eventForm.getDatetime());
+        event.setTitle(eventForm.getTitle());
+
+        eventRepository.save(event);
+
+        return "redirect:/event" + Id;
+    }
 
 
-//    @PostMapping("/event{Id}")
-//    public String changeEvent(@PathVariable String Id, @ModelAttribute("wasDeleted") boolean wasDeleted) {
-//        var username = securityService.findLoggedInUsername();
-//        User user = userRepository.findByUsername(username);
-//
-//        var longId = Long.parseLong(Id);
-//        Event event = eventRepository.findById(longId).get();
-//
-//        if (wasDeleted) {
-//            user.getEvents().remove(event);
-//            eventRepository.delete(event);
-//        }
-//        return "menu";
-//
-//
-//    }
+    @GetMapping("/event{Id}/chat")
+    public String getEventChat(@PathVariable String Id, Model model) {
+        var longId = Long.parseLong(Id);
+        Event event = eventRepository.findById(longId).get();
+        Set<Message> messagesSet = event.getMessages();
 
-//    @PostMapping("/event{Id}")
-//    public String changeEvent(@PathVariable String Id, Model model) {
-//        var username = securityService.findLoggedInUsername();
-//        User user = userRepository.findByUsername(username);
-//
-//        var longId = Long.parseLong(Id);
-//        Event event = eventRepository.findById(longId).get();
-//
-//        if (user.getEvents().contains(event)) {
-//            boolean wasDeleted = (boolean)model.getAttribute("wasDeleted");
-//            if (wasDeleted) {
-//                user.getEvents().remove(event);
-//                eventRepository.delete(event);
-//            }
-//            return "menu";
-//        }
-//
-//        boolean wasSubscribed = (boolean)model.getAttribute("wasSubscribed");
-//        if (wasSubscribed) {
-//            user.getEvents().add(event);
-//            userRepository.save(user);
-//            eventRepository.save(event);
-//            return "notMyEventSubscribed";
-//        }
-//        else {
-//            user.getEvents().remove(event);
-//            userRepository.save(user);
-//            eventRepository.save(event);
-//            return "notMyEventUnsubscribed";
-//        }
-//    }
-//
+        var messagesArray = new Message[messagesSet.size()];
+        var index = 0;
 
-    private static String getRequestBody(HttpServletRequest request) throws IOException {
+        for (Message message : messagesSet) {
+            messagesArray[index] = message;
+            index ++;
+        }
+
+
+        Arrays.sort(messagesArray);
+        ArrayList<Message> messagesList = new ArrayList<Message>(Arrays.asList(messagesArray));
+
+        model.addAttribute("messagesList", messagesList);
+        model.addAttribute("Id", Id);
+        return "eventChat";
+    }
+
+
+    @GetMapping("/event{Id}/chat/addMessage")
+    public String getMessageAddingForm(@PathVariable String Id, Model model) {
+        model.addAttribute("messageForm", new Message());
+        model.addAttribute("Id", Id);
+        return "addMessage";
+    }
+
+    @PostMapping("/event{Id}/chat/addMessage")
+    public String addMessage(@PathVariable String Id, @ModelAttribute("messageForm") Message messageForm, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            return "addMessage";
+        }
+
+        messageValidator.validate(messageForm, bindingResult);
+
+        if (messageValidator.getHasErrors()) {
+            return "addEvent";
+        }
+
+        var longId = Long.parseLong(Id);
+        Event event = eventRepository.findById(longId).get();
+
+        var username = securityService.findLoggedInUsername();
+        User user = userRepository.findByUsername(username);
+
+        Message message = new Message(messageForm.getText(), event, user, new Date());
+
+        event.getMessages().add(message);
+
+        messageRepository.save(message);
+        eventRepository.save(event);
+
+        return "redirect:/event" + Id +"/chat/";
+    }
+
+
+    private static String getRequestBody(HttpServletRequest request) throws IOException {  // этот метод просто скопировал из stackoverflow чтобы обрабатывать запросы с фронта
 
         String body = null;
         StringBuilder stringBuilder = new StringBuilder();
@@ -339,6 +338,5 @@ public class EventController {
         body = stringBuilder.toString();
         return body;
     }
-
 
 }

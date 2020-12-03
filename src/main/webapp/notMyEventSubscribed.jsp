@@ -22,11 +22,23 @@
       Username:<c:out value="${eventForm.username}"/><br>
 
 
-      <h4 class="text-center"><a href="${contextPath}/event${eventForm.id}/unsubscribe">Unsubscribe from the event</a></h4>
+      <button type="button" onclick="javascript:Unsubscribe()">Unsubscribe from event</button>
 
+      <h4><a href="event${Id}/chat">To chat</a></h4>
       <h4><a href="${contextPath}/menu">To menu</a></h4>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="${contextPath}/resources/js/bootstrap.min.js"></script>
   </body>
+
+  <script type="text/javascript">
+        Unsubscribe = function() {
+          var http = new XMLHttpRequest();
+          var url = document.URL
+          var params = "unsubscribe"
+          http.open('POST', url, false)
+          http.send(params)
+        }
+  </script>
+
 </html>

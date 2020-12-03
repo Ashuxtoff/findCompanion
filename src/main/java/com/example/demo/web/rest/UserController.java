@@ -1,6 +1,6 @@
 package com.example.demo.web.rest;
 
-import com.example.demo.entity.Event;
+
 import com.example.demo.repository.UserRepository;
 import com.example.demo.validators.UserValidator;
 import org.slf4j.Logger;
@@ -11,9 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-
 import com.example.demo.entity.User;
 import com.example.demo.service.SecurityService;
 import com.example.demo.service.UserService;
