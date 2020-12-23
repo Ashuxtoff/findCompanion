@@ -10,22 +10,22 @@ import java.util.Date;
 @Component
 public class EventValidator implements Validator {
 
-    private boolean hasErrors;
+    private boolean hasErrors; // нужен для того, чтобы показывать в контроллере, была ли ошибка в валидаторе
 
      public boolean getHasErrors() {
         return  hasErrors;
-    }
+    } // геттер для hasErrors
 
-    public void setHasErrors(boolean hasErrors) {
+    public void setHasErrors(boolean hasErrors) { // сеттер
         this.hasErrors = hasErrors;
     }
 
-    @Override
+    @Override // из интерфейса Validator
     public boolean supports(Class<?> aClass) {
         return Event.class.equals(aClass);
     }
 
-    @Override
+    @Override // из интерфейса Validator
     public void validate(Object target, Errors errors) {
 
         Event event = (Event)target;
