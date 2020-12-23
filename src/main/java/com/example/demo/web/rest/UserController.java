@@ -49,8 +49,12 @@ public class UserController
         userValidator.validate(userForm, bindingResult);
         userValidator.setContext("");
         if (userValidator.getHasErrors()) {
+            userValidator.setHasErrors(false);
             return "registration";
         }
+
+        userValidator.setHasErrors(false);
+        userService.save(userForm);
         securityService.autoLogin(userForm.getUsername(), userForm.getPasswordConfirm());
 
         String username = securityService.findLoggedInUsername();
@@ -97,6 +101,7 @@ public class UserController
         userValidator.validate(editProfileForm, bindingResult);
 
         if (userValidator.getHasErrors()) {
+            userValidator.setHasErrors(false);
             return "editProfile";
         }
 

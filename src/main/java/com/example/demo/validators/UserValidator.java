@@ -45,10 +45,10 @@ public class UserValidator implements Validator {
 
         setHasErrors(false);
 
-        if (userService.findByUsername(user.getUsername()) != null && this.context.equals("registration")) {
-            errors.rejectValue("username", "ThisUsernameIsAlreadyUsed", "This username is already used");
-            setHasErrors(true);
-        }
+//        if (userService.findByUsername(user.getUsername()) != null && this.context.equals("registration")) {
+//            errors.rejectValue("username", "ThisUsernameIsAlreadyUsed", "This username is already used");
+//            setHasErrors(true);
+//        }
 
         if (user.getUsername() == null) {
             errors.rejectValue("username", "NotEmpty", "Username is required!");
@@ -70,9 +70,9 @@ public class UserValidator implements Validator {
             }
         }
 
-        if (this.context.equals("registration") && !userService.save(user))
+        if (this.context.equals("registration") && userService.findByUsername(user.getUsername()) != null)
         {
-            errors.rejectValue("passwordConfirm", "UserHasAlreadyBeenCreated", "User has already been created");
+            errors.rejectValue("username", "UserHasAlreadyBeenCreated", "User has already been created");
             setHasErrors(true);
         }
     }

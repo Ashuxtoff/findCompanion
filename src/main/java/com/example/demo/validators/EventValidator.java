@@ -13,7 +13,7 @@ public class EventValidator implements Validator {
     private boolean hasErrors; // нужен для того, чтобы показывать в контроллере, была ли ошибка в валидаторе
 
      public boolean getHasErrors() {
-        return  hasErrors;
+        return hasErrors;
     } // геттер для hasErrors
 
     public void setHasErrors(boolean hasErrors) { // сеттер

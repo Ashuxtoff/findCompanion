@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-
 import com.example.demo.entity.User;
 import com.example.demo.service.SecurityService;
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +26,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 
+//@cookie27
 @Controller
 public class EventController {
 
@@ -240,7 +240,8 @@ public class EventController {
         return body;
     }
 
-    //---------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------------------
 
     @GetMapping("/editEvent{Id}")
     public String getEditEventForm(@PathVariable String Id, Model model)
@@ -339,8 +340,4 @@ public class EventController {
 
         return "redirect:/event" + Id +"/chat/";
     }
-
-
-
-
 }

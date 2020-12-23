@@ -35,6 +35,11 @@ public class UserServiceImpl  implements UserService
         var newUsername = user.getUsername();
         if (userRepository.findByUsername(newUsername) != null)
         {
+            var currentUsername = securityService.findLoggedInUsername();
+            var userFromDb = userRepository.findByUsername(currentUsername);
+            userFromDb.setDescription(user.getDescription());
+            userFromDb.setBirthdate(user.getBirthdate());
+            userRepository.save(userFromDb);
             return false;
         }
         var currentUsername = securityService.findLoggedInUsername();
