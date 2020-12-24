@@ -18,7 +18,7 @@ public class SecurityServiceImpl implements SecurityService
     private static final Logger LOG = LoggerFactory.getLogger(SecurityServiceImpl.class);
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager; // Bean из WebSecurityConfig
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -42,7 +42,6 @@ public class SecurityServiceImpl implements SecurityService
         if (usernamePasswordAuthenticationToken.isAuthenticated())
         {
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-        //    LOG.debug(String.format("Auto login %s successfully!", username));
         }
     }
 
